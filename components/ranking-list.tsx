@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2, TrendingUp } from "lucide-react"
 
+import { Podium } from "@/components/podium"
+
 export function RankingList() {
   const { players, loading, error } = usePlayersWithStats()
   const selectedMonth = "global"
@@ -40,8 +42,8 @@ export function RankingList() {
 
   const getSortedPlayers = (sortBy: "goals" | "assists" | "points") => {
     return [...players].sort((a, b) => {
-      const aStats = a.monthlyStats[selectedMonth] || { goals: 0, assists: 0, points: 0 }
-      const bStats = b.monthlyStats[selectedMonth] || { goals: 0, assists: 0, points: 0 }
+      const aStats = a.monthlyStats[selectedMonth] || { goals: 0, assists: 0, points: 0, cleanSheets: 0, saves: 0 }
+      const bStats = b.monthlyStats[selectedMonth] || { goals: 0, assists: 0, points: 0, cleanSheets: 0, saves: 0 }
 
       if (sortBy === "goals") return bStats.goals - aStats.goals
       if (sortBy === "assists") return bStats.assists - aStats.assists
@@ -73,36 +75,45 @@ export function RankingList() {
 
         <div className="transition-all duration-500">
           <TabsContent value="points" className="mt-0 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {getSortedPlayers("points").map((player, index) => (
-              <PlayerCard
-                key={player.id}
-                player={player}
-                rank={index + 1}
-                showMonth={selectedMonth}
-              />
-            ))}
+            <Podium players={getSortedPlayers("points")} sortBy="points" />
+            <div className="space-y-4">
+              {getSortedPlayers("points").slice(3).map((player, index) => (
+                <PlayerCard
+                  key={player.id}
+                  player={player}
+                  rank={index + 4}
+                  showMonth={selectedMonth}
+                />
+              ))}
+            </div>
           </TabsContent>
 
           <TabsContent value="goals" className="mt-0 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {getSortedPlayers("goals").map((player, index) => (
-              <PlayerCard
-                key={player.id}
-                player={player}
-                rank={index + 1}
-                showMonth={selectedMonth}
-              />
-            ))}
+            <Podium players={getSortedPlayers("goals")} sortBy="goals" />
+            <div className="space-y-4">
+              {getSortedPlayers("goals").slice(3).map((player, index) => (
+                <PlayerCard
+                  key={player.id}
+                  player={player}
+                  rank={index + 4}
+                  showMonth={selectedMonth}
+                />
+              ))}
+            </div>
           </TabsContent>
 
           <TabsContent value="assists" className="mt-0 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {getSortedPlayers("assists").map((player, index) => (
-              <PlayerCard
-                key={player.id}
-                player={player}
-                rank={index + 1}
-                showMonth={selectedMonth}
-              />
-            ))}
+            <Podium players={getSortedPlayers("assists")} sortBy="assists" />
+            <div className="space-y-4">
+              {getSortedPlayers("assists").slice(3).map((player, index) => (
+                <PlayerCard
+                  key={player.id}
+                  player={player}
+                  rank={index + 4}
+                  showMonth={selectedMonth}
+                />
+              ))}
+            </div>
           </TabsContent>
         </div>
       </Tabs>
