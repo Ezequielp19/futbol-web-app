@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Plus, Loader2, Target, HandHelping, Calendar } from "lucide-react"
+import { Plus, Loader2, Target, HandHelping, Calendar, Shield, Hand } from "lucide-react"
 import type { Player } from "@/lib/types"
 
 export function StatsManager() {
@@ -30,12 +30,16 @@ export function StatsManager() {
   const [selectedPlayerId, setSelectedPlayerId] = useState("")
   const [goals, setGoals] = useState("0")
   const [assists, setAssists] = useState("0")
+  const [cleanSheets, setCleanSheets] = useState("0")
+  const [saves, setSaves] = useState("0")
   const [formMonth, setFormMonth] = useState(selectedMonth)
 
   const resetForm = () => {
     setSelectedPlayerId("")
     setGoals("0")
     setAssists("0")
+    setCleanSheets("0")
+    setSaves("0")
     setFormMonth(selectedMonth)
   }
 
@@ -43,7 +47,13 @@ export function StatsManager() {
     if (!selectedPlayerId) return
     setIsSubmitting(true)
     try {
-      await addOrUpdateStat(selectedPlayerId, parseInt(goals) || 0, parseInt(assists) || 0)
+      await addOrUpdateStat(
+        selectedPlayerId,
+        parseInt(goals) || 0,
+        parseInt(assists) || 0,
+        parseInt(cleanSheets) || 0,
+        parseInt(saves) || 0
+      )
       resetForm()
       setIsDialogOpen(false)
     } catch (error) {
@@ -65,9 +75,13 @@ export function StatsManager() {
     if (existingStat) {
       setGoals(existingStat.goals.toString())
       setAssists(existingStat.assists.toString())
+      setCleanSheets((existingStat.cleanSheets || 0).toString())
+      setSaves((existingStat.saves || 0).toString())
     } else {
       setGoals("0")
       setAssists("0")
+      setCleanSheets("0")
+      setSaves("0")
     }
 
     setIsDialogOpen(true)
@@ -130,7 +144,8 @@ export function StatsManager() {
               .toUpperCase()
               .slice(0, 2)
 
-            const playerStat = playerStatsMap.get(player.id) || { goals: 0, assists: 0 }
+            const playerStat = playerStatsMap.get(player.id) || { goals: 0, assists: 0, cleanSheets: 0, saves: 0 }
+            const isPortero = player.traits?.includes("portero")
 
             return (
               <div
@@ -149,14 +164,29 @@ export function StatsManager() {
                 </div>
 
                 <div className="flex items-center gap-6 text-sm">
-                  <div className="flex flex-col items-center">
-                    <span className="text-primary font-black text-xl leading-none italic">{playerStat.goals}</span>
-                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">Goles</span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <span className="text-white font-black text-xl leading-none italic">{playerStat.assists}</span>
-                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">Asist.</span>
-                  </div>
+                  {isPortero ? (
+                    <>
+                      <div className="flex flex-col items-center">
+                        <span className="text-primary font-black text-xl leading-none italic">{playerStat.cleanSheets || 0}</span>
+                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">Vallas</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <span className="text-white font-black text-xl leading-none italic">{playerStat.saves || 0}</span>
+                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">Atajadas</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex flex-col items-center">
+                        <span className="text-primary font-black text-xl leading-none italic">{playerStat.goals}</span>
+                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">Goles</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <span className="text-white font-black text-xl leading-none italic">{playerStat.assists}</span>
+                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">Asist.</span>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <Button
@@ -194,32 +224,65 @@ export function StatsManager() {
             </div>
 
             <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <Label htmlFor="goals" className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white/40">
-                  <Target className="h-4 w-4 text-primary" /> Goles
-                </Label>
-                <Input
-                  id="goals"
-                  type="number"
-                  min="0"
-                  value={goals}
-                  onChange={(e) => setGoals(e.target.value)}
-                  className="bg-white/5 border-white/10 h-14 text-2xl font-black italic focus:border-primary text-center"
-                />
-              </div>
-              <div className="space-y-3">
-                <Label htmlFor="assists" className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white/40">
-                  <HandHelping className="h-4 w-4 text-white" /> Asistencias
-                </Label>
-                <Input
-                  id="assists"
-                  type="number"
-                  min="0"
-                  value={assists}
-                  onChange={(e) => setAssists(e.target.value)}
-                  className="bg-white/5 border-white/10 h-14 text-2xl font-black italic focus:border-white text-center"
-                />
-              </div>
+              {players.find(p => p.id === selectedPlayerId)?.traits?.includes("portero") ? (
+                <>
+                  <div className="space-y-3">
+                    <Label htmlFor="cleanSheets" className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white/40">
+                      <Shield className="h-4 w-4 text-primary" /> Vallas Invictas
+                    </Label>
+                    <Input
+                      id="cleanSheets"
+                      type="number"
+                      min="0"
+                      value={cleanSheets}
+                      onChange={(e) => setCleanSheets(e.target.value)}
+                      className="bg-white/5 border-white/10 h-14 text-2xl font-black italic focus:border-primary text-center"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <Label htmlFor="saves" className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white/40">
+                      <Hand className="h-4 w-4 text-white" /> Atajadas
+                    </Label>
+                    <Input
+                      id="saves"
+                      type="number"
+                      min="0"
+                      value={saves}
+                      onChange={(e) => setSaves(e.target.value)}
+                      className="bg-white/5 border-white/10 h-14 text-2xl font-black italic focus:border-white text-center"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-3">
+                    <Label htmlFor="goals" className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white/40">
+                      <Target className="h-4 w-4 text-primary" /> Goles
+                    </Label>
+                    <Input
+                      id="goals"
+                      type="number"
+                      min="0"
+                      value={goals}
+                      onChange={(e) => setGoals(e.target.value)}
+                      className="bg-white/5 border-white/10 h-14 text-2xl font-black italic focus:border-primary text-center"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <Label htmlFor="assists" className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white/40">
+                      <HandHelping className="h-4 w-4 text-white" /> Asistencias
+                    </Label>
+                    <Input
+                      id="assists"
+                      type="number"
+                      min="0"
+                      value={assists}
+                      onChange={(e) => setAssists(e.target.value)}
+                      className="bg-white/5 border-white/10 h-14 text-2xl font-black italic focus:border-white text-center"
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </div>
           <DialogFooter className="gap-3">

@@ -110,21 +110,34 @@ export function usePlayersWithStats() {
 
   const playersWithStats: PlayerWithStats[] = players.map((player) => {
     const playerStats = stats.filter((stat) => stat.playerId === player.id)
+    const isPortero = player.traits?.includes("portero")
     
-    // Calculate total points (2 for goal, 1 for assist)
-    const totalGoals = playerStats.reduce((sum, stat) => sum + stat.goals, 0)
-    const totalAssists = playerStats.reduce((sum, stat) => sum + stat.assists, 0)
-    const totalPoints = totalGoals * 2 + totalAssists
+    const totalGoals = playerStats.reduce((sum, stat) => sum + (stat.goals || 0), 0)
+    const totalAssists = playerStats.reduce((sum, stat) => sum + (stat.assists || 0), 0)
+    const totalCleanSheets = playerStats.reduce((sum, stat) => sum + (stat.cleanSheets || 0), 0)
+    const totalSaves = playerStats.reduce((sum, stat) => sum + (stat.saves || 0), 0)
+
+    // Points system:
+    // Players: Goal=2, Assist=1
+    // Goalies: Clean Sheet=5, Save=0.5 (represented as 1 point per 2 saves for simplicity, or just 1 per save)
+    // Let's use: Goal=2, Assist=1, Clean Sheet=5, Save=1 (Arqueros)
+    const totalPoints = isPortero 
+      ? (totalCleanSheets * 5 + totalSaves * 1)
+      : (totalGoals * 2 + totalAssists * 1)
     
     return {
       ...player,
       totalGoals,
       totalAssists,
+      totalCleanSheets,
+      totalSaves,
       totalPoints,
       monthlyStats: {
         "global": {
           goals: totalGoals,
           assists: totalAssists,
+          cleanSheets: totalCleanSheets,
+          saves: totalSaves,
           points: totalPoints
         }
       }
@@ -142,7 +155,8 @@ export async function addPlayer(
   name: string, 
   photoFile?: File, 
   description?: string, 
-  traits?: string[]
+  traits?: string[],
+  isLegendary?: boolean
 ): Promise<string> {
   console.log("[v0] addPlayer: Iniciando con nombre:", name)
   let photoUrl = ""
@@ -164,6 +178,7 @@ export async function addPlayer(
     photoUrl,
     description: description || "",
     traits: traits || [],
+    isLegendary: isLegendary || false,
     createdAt: Date.now(),
   })
 
@@ -173,13 +188,14 @@ export async function addPlayer(
 
 export async function updatePlayer(
   playerId: string, 
-  data: { name?: string; photoFile?: File; description?: string; traits?: string[] }
+  data: { name?: string; photoFile?: File; description?: string; traits?: string[]; isLegendary?: boolean }
 ): Promise<void> {
   const updates: any = {}
   
   if (data.name !== undefined) updates.name = data.name
   if (data.description !== undefined) updates.description = data.description
   if (data.traits !== undefined) updates.traits = data.traits
+  if (data.isLegendary !== undefined) updates.isLegendary = data.isLegendary
   
   if (data.photoFile) {
     const fileRef = storageRef(storage, `players/${Date.now()}_${data.photoFile.name}`)
@@ -212,7 +228,9 @@ export async function deletePlayer(playerId: string): Promise<void> {
 export async function addOrUpdateStat(
   playerId: string, 
   goals: number, 
-  assists: number
+  assists: number,
+  cleanSheets: number = 0,
+  saves: number = 0
 ): Promise<void> {
   const statsRef = ref(database, "stats")
   const globalMonth = "global"
@@ -233,13 +251,15 @@ export async function addOrUpdateStat(
       
       if (existingStatId) {
         const statRef = ref(database, `stats/${existingStatId}`)
-        await update(statRef, { goals, assists })
+        await update(statRef, { goals, assists, cleanSheets, saves })
       } else {
         const newStatRef = push(statsRef)
         await set(newStatRef, {
           playerId,
           goals,
           assists,
+          cleanSheets,
+          saves,
           month: globalMonth,
           createdAt: Date.now(),
         })

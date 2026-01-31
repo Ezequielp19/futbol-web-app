@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Trophy, Target, HandHelping, Info, Calendar, User } from "lucide-react"
+import { Trophy, Target, HandHelping, Info, Calendar, User, Shield, Hand } from "lucide-react"
 import type { PlayerWithStats } from "@/lib/types"
 import { AVAILABLE_TRAITS } from "@/lib/constants"
 
@@ -25,7 +25,15 @@ export function PlayerCard({ player, rank, showMonth }: PlayerCardProps) {
 
   const stats = showMonth && player.monthlyStats[showMonth]
     ? player.monthlyStats[showMonth]
-    : { goals: player.totalGoals, assists: player.totalAssists, points: player.totalPoints }
+    : {
+      goals: player.totalGoals,
+      assists: player.totalAssists,
+      cleanSheets: player.totalCleanSheets,
+      saves: player.totalSaves,
+      points: player.totalPoints
+    }
+
+  const isPortero = player.traits?.includes("portero")
 
   const initials = player.name
     .split(" ")
@@ -45,6 +53,9 @@ export function PlayerCard({ player, rank, showMonth }: PlayerCardProps) {
           {/* Card Background Decoration */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-primary/20 transition-colors" />
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-accent/5 rounded-full -ml-12 -mb-12 blur-2xl" />
+          {player.isLegendary && (
+            <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-transparent to-yellow-500/5 rounded-[2rem] border-2 border-yellow-500/30 shadow-[0_0_20px_rgba(234,179,8,0.1)] pointer-events-none animate-pulse-slow" />
+          )}
 
           {/* Card Body */}
           <div className="relative p-4 md:p-6 flex items-center gap-4 md:gap-8">
@@ -64,9 +75,9 @@ export function PlayerCard({ player, rank, showMonth }: PlayerCardProps) {
             {/* Player Photo */}
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
-              <Avatar className="h-16 w-16 md:h-24 md:w-24 border-2 border-white/10 p-1 bg-white/[0.02]">
+              <Avatar className={`h-16 w-16 md:h-24 md:w-24 border-2 p-1 bg-white/[0.02] ${player.isLegendary ? 'border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.4)]' : 'border-white/10'}`}>
                 <AvatarImage src={player.photoUrl || "/placeholder.svg"} alt={player.name} className="object-cover rounded-full" />
-                <AvatarFallback className="bg-secondary text-primary font-black text-xl md:text-2xl">
+                <AvatarFallback className={`${player.isLegendary ? 'bg-yellow-500/20 text-yellow-500' : 'bg-secondary text-primary'} font-black text-xl md:text-2xl`}>
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -86,11 +97,15 @@ export function PlayerCard({ player, rank, showMonth }: PlayerCardProps) {
               </div>
 
               <div className="flex items-center gap-3">
-                <span className="ef-badge">PRO PLAYER</span>
-                <div className="h-1 w-1 bg-white/20 rounded-full" />
-                <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest leading-none">
-                  {stats.points} PTS
-                </span>
+                {player.isLegendary ? (
+                  <span className="bg-yellow-500 text-black px-3 py-1 rounded-full text-[12px] font-black italic uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center gap-1">
+                    LEYENDA <Trophy className="h-3 w-3" />
+                  </span>
+                ) : (
+                  <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest leading-none">
+                    {stats.points} PTS
+                  </span>
+                )}
                 {player.description && (
                   <>
                     <div className="hidden md:block h-1 w-1 bg-white/20 rounded-full" />
@@ -103,17 +118,35 @@ export function PlayerCard({ player, rank, showMonth }: PlayerCardProps) {
             </div>
 
             {/* Stats Grid */}
-            <div className="flex gap-4 md:gap-8 pr-2">
-              <div className="text-center">
-                <p className="text-2xl md:text-4xl font-black italic leading-none text-primary">{stats.goals}</p>
-                <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter">Goles</p>
+            {!player.isLegendary && (
+              <div className="flex gap-4 md:gap-8 pr-2">
+                {isPortero ? (
+                  <>
+                    <div className="text-center">
+                      <p className="text-2xl md:text-4xl font-black italic leading-none text-primary">{stats.cleanSheets || 0}</p>
+                      <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter text-nowrap">Vallas</p>
+                    </div>
+                    <div className="w-[1px] h-10 bg-white/5" />
+                    <div className="text-center">
+                      <p className="text-2xl md:text-4xl font-black italic leading-none text-white">{stats.saves || 0}</p>
+                      <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter text-nowrap">Atajadas</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-center">
+                      <p className="text-2xl md:text-4xl font-black italic leading-none text-primary">{stats.goals}</p>
+                      <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter">Goles</p>
+                    </div>
+                    <div className="w-[1px] h-10 bg-white/5" />
+                    <div className="text-center">
+                      <p className="text-2xl md:text-4xl font-black italic leading-none text-white">{stats.assists}</p>
+                      <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter">Asist.</p>
+                    </div>
+                  </>
+                )}
               </div>
-              <div className="w-[1px] h-10 bg-white/5" />
-              <div className="text-center">
-                <p className="text-2xl md:text-4xl font-black italic leading-none text-white">{stats.assists}</p>
-                <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter">Asist.</p>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Futuristic Lines */}
@@ -191,29 +224,51 @@ export function PlayerCard({ player, rank, showMonth }: PlayerCardProps) {
 
               {/* Right: Stats Summary */}
               <div className="space-y-4">
-                <div className="bg-primary text-black rounded-[2rem] p-6 text-center shadow-[0_20px_40px_rgba(226,255,0,0.15)]">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1">Total Puntos</p>
-                  <p className="text-6xl font-black italic leading-none">{player.totalPoints}</p>
-                </div>
+                {!player.isLegendary && (
+                  <>
+                    <div className="bg-primary text-black rounded-[2rem] p-6 text-center shadow-[0_20px_40px_rgba(226,255,0,0.15)]">
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1">Total Puntos</p>
+                      <p className="text-6xl font-black italic leading-none">{player.totalPoints}</p>
+                    </div>
 
-                <div className="bg-white/5 rounded-[2rem] p-6 border border-white/5 flex justify-around">
-                  <div className="text-center">
-                    <p className="text-3xl font-black italic text-primary leading-none">{player.totalGoals}</p>
-                    <p className="text-[10px] font-bold text-white/40 uppercase mt-1">Goles</p>
-                  </div>
-                  <div className="w-[1px] h-full bg-white/10 mx-2" />
-                  <div className="text-center">
-                    <p className="text-3xl font-black italic text-white leading-none">{player.totalAssists}</p>
-                    <p className="text-[10px] font-bold text-white/40 uppercase mt-1">Asist.</p>
-                  </div>
-                </div>
+                    <div className="bg-white/5 rounded-[2rem] p-6 border border-white/5 flex justify-around">
+                      {isPortero ? (
+                        <>
+                          <div className="text-center">
+                            <p className="text-3xl font-black italic text-primary leading-none">{player.totalCleanSheets}</p>
+                            <p className="text-[10px] font-bold text-white/40 uppercase mt-1">Vallas Inv.</p>
+                          </div>
+                          <div className="w-[1px] h-full bg-white/10 mx-2" />
+                          <div className="text-center">
+                            <p className="text-3xl font-black italic text-white leading-none">{player.totalSaves}</p>
+                            <p className="text-[10px] font-bold text-white/40 uppercase mt-1">Atajadas</p>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-center">
+                            <p className="text-3xl font-black italic text-primary leading-none">{player.totalGoals}</p>
+                            <p className="text-[10px] font-bold text-white/40 uppercase mt-1">Goles</p>
+                          </div>
+                          <div className="w-[1px] h-full bg-white/10 mx-2" />
+                          <div className="text-center">
+                            <p className="text-3xl font-black italic text-white leading-none">{player.totalAssists}</p>
+                            <p className="text-[10px] font-bold text-white/40 uppercase mt-1">Asist.</p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </>
+                )}
 
                 <div className="bg-accent/10 border border-accent/20 rounded-[2rem] p-6 text-center">
                   <div className="flex items-center justify-center gap-2 text-accent mb-1">
                     <Trophy className="h-4 w-4" />
                     <span className="text-[10px] font-black uppercase tracking-widest">Estado</span>
                   </div>
-                  <p className="text-xl font-black italic uppercase text-white">ACTIVO</p>
+                  <p className="text-xl font-black italic uppercase text-white">
+                    {player.isLegendary ? "RETIRADO (LEYENDA)" : "ACTIVO"}
+                  </p>
                 </div>
               </div>
             </div>

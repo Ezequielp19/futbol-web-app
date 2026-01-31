@@ -45,6 +45,7 @@ export function PlayersManager() {
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [selectedTraits, setSelectedTraits] = useState<string[]>([])
+  const [isLegendary, setIsLegendary] = useState(false)
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string>("")
 
@@ -52,6 +53,7 @@ export function PlayersManager() {
     setName("")
     setDescription("")
     setSelectedTraits([])
+    setIsLegendary(false)
     setPhotoFile(null)
     setPhotoPreview("")
   }
@@ -80,7 +82,7 @@ export function PlayersManager() {
     if (!name.trim()) return
     setIsSubmitting(true)
     try {
-      await addPlayer(name.trim(), photoFile || undefined, description, selectedTraits)
+      await addPlayer(name.trim(), photoFile || undefined, description, selectedTraits, isLegendary)
       resetForm()
       setIsAddDialogOpen(false)
     } catch (error) {
@@ -98,7 +100,8 @@ export function PlayersManager() {
         name: name.trim(),
         photoFile: photoFile || undefined,
         description,
-        traits: selectedTraits
+        traits: selectedTraits,
+        isLegendary
       })
       resetForm()
       setEditingPlayer(null)
@@ -122,6 +125,7 @@ export function PlayersManager() {
     setName(player.name)
     setDescription(player.description || "")
     setSelectedTraits(player.traits || [])
+    setIsLegendary(player.isLegendary || false)
     setPhotoPreview(player.photoUrl)
   }
 
@@ -164,6 +168,31 @@ export function PlayersManager() {
           placeholder="Cuenta algo sobre este jugador..."
           className="bg-white/5 border-white/10 min-h-[100px] focus:border-primary transition-colors text-white font-medium italic"
         />
+      </div>
+
+      <div className="space-y-3">
+        <Label className="text-xs font-black uppercase tracking-widest text-white/40">Estado del Jugador</Label>
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => setIsLegendary(!isLegendary)}
+            className={`
+              flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-black italic uppercase transition-all border w-full
+              ${isLegendary
+                ? "bg-yellow-500/20 border-yellow-500 text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
+                : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
+              }
+            `}
+          >
+            <div className={`
+              w-4 h-4 rounded-full border-2 flex items-center justify-center
+              ${isLegendary ? "border-yellow-500 bg-yellow-500" : "border-white/20"}
+            `}>
+              {isLegendary && <Check className="h-3 w-3 text-black" />}
+            </div>
+            <span>🌟 Jugador Legendario (Retirado)</span>
+          </button>
+        </div>
       </div>
 
       <div className="space-y-3">
