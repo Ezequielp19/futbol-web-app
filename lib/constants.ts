@@ -1,0 +1,15 @@
+export const AVAILABLE_TRAITS = [
+  { id: "golazo", label: "Golazo", color: "bg-yellow-500", icon: "⚽" },
+  { id: "matero", label: "Matero", color: "bg-emerald-600", icon: "🧉" },
+  { id: "velocista", label: "Velocista", color: "bg-blue-500", icon: "⚡" },
+  { id: "tanque", label: "Tanque", color: "bg-red-600", icon: "🚜" },
+  { id: "mago", label: "Mago", color: "bg-purple-500", icon: "🎩" },
+  { id: "muralla", label: "Muralla", color: "bg-slate-500", icon: "🧱" },
+  { id: "capitan", label: "Capitán", color: "bg-orange-500", icon: "🎖️" },
+  { id: "gambeteador", label: "Gambeteador", color: "bg-pink-500", icon: "🕺" },
+  { id: "musico", label: "Músico", color: "bg-indigo-500", icon: "🎸" },
+  { id: "calenton", label: "Calentón", color: "bg-orange-700", icon: "😡" },
+  { id: "goleador", label: "Goleador", color: "bg-red-500", icon: "🎯" },
+  { id: "nueve", label: "9 (a veces)", color: "bg-cyan-600", icon: "9️⃣" },
+  { id: "portero", label: "Portero", color: "bg-lime-500", icon: "🧤" },
+]
