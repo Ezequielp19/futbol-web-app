@@ -155,23 +155,23 @@ export function PlayerCard({ player, rank, showMonth }: PlayerCardProps) {
         </div>
       </DialogTrigger>
 
-      <DialogContent className="bg-background/95 backdrop-blur-2xl border-white/10 rounded-[2.5rem] max-w-2xl p-0 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+      <DialogContent className="bg-background/95 backdrop-blur-2xl border-white/10 rounded-[2rem] md:rounded-[2.5rem] w-[95vw] sm:max-w-2xl p-0 overflow-y-auto max-h-[90vh] shadow-[0_0_50px_rgba(0,0,0,0.5)] outline-none scrollbar-hide">
         <div className="relative">
           {/* Header/Banner */}
-          <div className="h-48 bg-gradient-to-br from-secondary to-background relative overflow-hidden">
+          <div className="h-32 md:h-48 bg-gradient-to-br from-secondary to-background relative overflow-hidden">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -mr-32 -mt-32" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/10 rounded-full blur-[60px] -ml-24 -mb-24" />
           </div>
 
           {/* Profile Overlay */}
-          <div className="relative px-8 -mt-24 pb-12">
+          <div className="relative px-4 md:px-8 -mt-16 md:-mt-24 pb-20 md:pb-12">
             <div className="flex flex-col md:flex-row items-end gap-6 mb-8">
               <div className="relative group">
                 <div className="absolute inset-0 bg-primary/30 blur-2xl rounded-full opacity-50 transition-opacity" />
-                <Avatar className="h-40 w-40 border-4 border-background bg-secondary rounded-[2rem] relative z-10 p-1">
-                  <AvatarImage src={player.photoUrl || "/placeholder.svg"} className="object-cover rounded-[1.8rem]" />
-                  <AvatarFallback className="text-5xl font-black italic text-primary">{initials}</AvatarFallback>
+                <Avatar className="h-32 w-32 md:h-40 md:w-40 border-4 border-background bg-secondary rounded-[1.5rem] md:rounded-[2rem] relative z-10 p-1">
+                  <AvatarImage src={player.photoUrl || "/placeholder.svg"} className="object-cover rounded-[1.3rem] md:rounded-[1.8rem]" />
+                  <AvatarFallback className="text-4xl md:text-5xl font-black italic text-primary">{initials}</AvatarFallback>
                 </Avatar>
               </div>
 
@@ -182,7 +182,7 @@ export function PlayerCard({ player, rank, showMonth }: PlayerCardProps) {
                     <span key={t.id} className="text-2xl" title={t.label}>{t.icon}</span>
                   ))}
                 </div>
-                <h2 className="text-5xl font-black italic uppercase tracking-tighter ef-gradient-text leading-none mb-2">
+                <h2 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter ef-gradient-text leading-tight md:leading-none mb-2">
                   {player.name}
                 </h2>
                 <div className="flex items-center justify-center md:justify-start gap-3 text-white/40 font-bold uppercase tracking-widest text-xs">
@@ -194,8 +194,8 @@ export function PlayerCard({ player, rank, showMonth }: PlayerCardProps) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Left: Bio/Description */}
-              <div className="md:col-span-2 space-y-6">
+              {/* Bio/Description - Order 2 on mobile, Order 1 on desktop */}
+              <div className="md:col-span-2 space-y-6 order-2 md:order-1">
                 <div className="bg-white/5 rounded-3xl p-6 border border-white/5">
                   <h4 className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-primary mb-4">
                     <Info className="h-4 w-4" /> Biografía Oficial
@@ -222,8 +222,8 @@ export function PlayerCard({ player, rank, showMonth }: PlayerCardProps) {
                 </div>
               </div>
 
-              {/* Right: Stats Summary */}
-              <div className="space-y-4">
+              {/* Stats Summary - Order 1 on mobile, Order 2 on desktop */}
+              <div className="space-y-4 order-1 md:order-2">
                 {!player.isLegendary && (
                   <>
                     <div className="bg-primary text-black rounded-[2rem] p-6 text-center shadow-[0_20px_40px_rgba(226,255,0,0.15)]">
