@@ -18,9 +18,10 @@ interface PlayerCardProps {
   player: PlayerWithStats
   rank: number
   showMonth?: string
+  customTrigger?: React.ReactNode
 }
 
-export function PlayerCard({ player, rank, showMonth }: PlayerCardProps) {
+export function PlayerCard({ player, rank, showMonth, customTrigger }: PlayerCardProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   const stats = showMonth && player.monthlyStats[showMonth]
@@ -49,110 +50,112 @@ export function PlayerCard({ player, rank, showMonth }: PlayerCardProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <div className="ef-card group cursor-pointer hover:scale-[1.01] transition-all">
-          {/* Card Background Decoration */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-primary/20 transition-colors" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-accent/5 rounded-full -ml-12 -mb-12 blur-2xl" />
-          {player.isLegendary && (
-            <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-transparent to-yellow-500/5 rounded-[2rem] border-2 border-yellow-500/30 shadow-[0_0_20px_rgba(234,179,8,0.1)] pointer-events-none animate-pulse-slow" />
-          )}
+        {customTrigger || (
+          <div className="ef-card group cursor-pointer hover:scale-[1.01] transition-all">
+            {/* Card Background Decoration */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-primary/20 transition-colors" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-accent/5 rounded-full -ml-12 -mb-12 blur-2xl" />
+            {player.isLegendary && (
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-transparent to-yellow-500/5 rounded-[2rem] border-2 border-yellow-500/30 shadow-[0_0_20px_rgba(234,179,8,0.1)] pointer-events-none animate-pulse-slow" />
+            )}
 
-          {/* Card Body */}
-          <div className="relative p-4 md:p-6 flex items-center gap-4 md:gap-8">
-            {/* Rank Badge */}
-            <div className={`
-              flex flex-col items-center justify-center w-12 md:w-16 h-12 md:h-16 rounded-xl border-2 italic font-black text-xl md:text-2xl 
-              ${rank === 1 ? "bg-primary border-primary text-black shadow-[0_0_15px_rgba(226,255,0,0.5)]" :
-                rank === 2 ? "bg-white/10 border-white/20 text-white" :
-                  rank === 3 ? "bg-accent border-accent text-white shadow-[0_0_15px_rgba(255,0,85,0.4)]" :
-                    "bg-secondary/50 border-white/5 text-muted-foreground opacity-70"
-              }
-            `}>
-              <span className="leading-none">{rank}</span>
-              <span className="text-[10px] uppercase tracking-tighter not-italic mt-0.5 opacity-80">POS</span>
-            </div>
+            {/* Card Body */}
+            <div className="relative p-4 md:p-6 flex items-center gap-4 md:gap-8">
+              {/* Rank Badge */}
+              <div className={`
+                flex flex-col items-center justify-center w-12 md:w-16 h-12 md:h-16 rounded-xl border-2 italic font-black text-xl md:text-2xl 
+                ${rank === 1 ? "bg-primary border-primary text-black shadow-[0_0_15px_rgba(226,255,0,0.5)]" :
+                  rank === 2 ? "bg-white/10 border-white/20 text-white" :
+                    rank === 3 ? "bg-accent border-accent text-white shadow-[0_0_15px_rgba(255,0,85,0.4)]" :
+                      "bg-secondary/50 border-white/5 text-muted-foreground opacity-70"
+                }
+              `}>
+                <span className="leading-none">{rank}</span>
+                <span className="text-[10px] uppercase tracking-tighter not-italic mt-0.5 opacity-80">POS</span>
+              </div>
 
-            {/* Player Photo */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
-              <Avatar className={`h-16 w-16 md:h-24 md:w-24 border-2 p-1 bg-white/[0.02] ${player.isLegendary ? 'border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.4)]' : 'border-white/10'}`}>
-                <AvatarImage src={player.photoUrl || "/placeholder.svg"} alt={player.name} className="object-cover rounded-full" />
-                <AvatarFallback className={`${player.isLegendary ? 'bg-yellow-500/20 text-yellow-500' : 'bg-secondary text-primary'} font-black text-xl md:text-2xl`}>
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-            </div>
+              {/* Player Photo */}
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
+                <Avatar className={`h-16 w-16 md:h-24 md:w-24 border-2 p-1 bg-white/[0.02] ${player.isLegendary ? 'border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.4)]' : 'border-white/10'}`}>
+                  <AvatarImage src={player.photoUrl || "/placeholder.svg"} alt={player.name} className="object-cover rounded-full" />
+                  <AvatarFallback className={`${player.isLegendary ? 'bg-yellow-500/20 text-yellow-500' : 'bg-secondary text-primary'} font-black text-xl md:text-2xl`}>
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
 
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-xl md:text-3xl font-black italic uppercase tracking-tighter group-hover:text-primary transition-colors">
-                  {player.name}
-                </h3>
-                <div className="hidden md:flex gap-1">
-                  {playerTraits.slice(0, 3).map(trait => (
-                    <span key={trait.id} className="text-lg" title={trait.label}>{trait.icon}</span>
-                  ))}
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-xl md:text-3xl font-black italic uppercase tracking-tighter group-hover:text-primary transition-colors">
+                    {player.name}
+                  </h3>
+                  <div className="hidden md:flex gap-1">
+                    {playerTraits.slice(0, 3).map(trait => (
+                      <span key={trait.id} className="text-lg" title={trait.label}>{trait.icon}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {player.isLegendary ? (
+                    <span className="bg-yellow-500 text-black px-3 py-1 rounded-full text-[12px] font-black italic uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center gap-1">
+                      LEYENDA <Trophy className="h-3 w-3" />
+                    </span>
+                  ) : (
+                    <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest leading-none">
+                      {stats.points} PTS
+                    </span>
+                  )}
+                  {player.description && (
+                    <>
+                      <div className="hidden md:block h-1 w-1 bg-white/20 rounded-full" />
+                      <span className="hidden md:block text-[10px] font-bold text-white/30 uppercase tracking-tighter">
+                        {player.description}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                {player.isLegendary ? (
-                  <span className="bg-yellow-500 text-black px-3 py-1 rounded-full text-[12px] font-black italic uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center gap-1">
-                    LEYENDA <Trophy className="h-3 w-3" />
-                  </span>
-                ) : (
-                  <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest leading-none">
-                    {stats.points} PTS
-                  </span>
-                )}
-                {player.description && (
-                  <>
-                    <div className="hidden md:block h-1 w-1 bg-white/20 rounded-full" />
-                    <span className="hidden md:block text-[10px] font-bold text-white/30 uppercase tracking-tighter">
-                      {player.description}
-                    </span>
-                  </>
-                )}
-              </div>
+              {/* Stats Grid */}
+              {!player.isLegendary && (
+                <div className="flex gap-4 md:gap-8 pr-2">
+                  {isPortero ? (
+                    <>
+                      <div className="text-center">
+                        <p className="text-2xl md:text-4xl font-black italic leading-none text-primary">{stats.cleanSheets || 0}</p>
+                        <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter text-nowrap">Vallas</p>
+                      </div>
+                      <div className="w-[1px] h-10 bg-white/5" />
+                      <div className="text-center">
+                        <p className="text-2xl md:text-4xl font-black italic leading-none text-white">{stats.saves || 0}</p>
+                        <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter text-nowrap">Atajadas</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-center">
+                        <p className="text-2xl md:text-4xl font-black italic leading-none text-primary">{stats.goals}</p>
+                        <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter">Goles</p>
+                      </div>
+                      <div className="w-[1px] h-10 bg-white/5" />
+                      <div className="text-center">
+                        <p className="text-2xl md:text-4xl font-black italic leading-none text-white">{stats.assists}</p>
+                        <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter">Asist.</p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Stats Grid */}
-            {!player.isLegendary && (
-              <div className="flex gap-4 md:gap-8 pr-2">
-                {isPortero ? (
-                  <>
-                    <div className="text-center">
-                      <p className="text-2xl md:text-4xl font-black italic leading-none text-primary">{stats.cleanSheets || 0}</p>
-                      <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter text-nowrap">Vallas</p>
-                    </div>
-                    <div className="w-[1px] h-10 bg-white/5" />
-                    <div className="text-center">
-                      <p className="text-2xl md:text-4xl font-black italic leading-none text-white">{stats.saves || 0}</p>
-                      <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter text-nowrap">Atajadas</p>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-center">
-                      <p className="text-2xl md:text-4xl font-black italic leading-none text-primary">{stats.goals}</p>
-                      <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter">Goles</p>
-                    </div>
-                    <div className="w-[1px] h-10 bg-white/5" />
-                    <div className="text-center">
-                      <p className="text-2xl md:text-4xl font-black italic leading-none text-white">{stats.assists}</p>
-                      <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter">Asist.</p>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+            {/* Futuristic Lines */}
+            <div className="absolute bottom-0 right-0 h-[2px] w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+            <div className="absolute top-0 left-0 w-[1px] h-full bg-gradient-to-b from-transparent via-white/5 to-transparent" />
           </div>
-
-          {/* Futuristic Lines */}
-          <div className="absolute bottom-0 right-0 h-[2px] w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-          <div className="absolute top-0 left-0 w-[1px] h-full bg-gradient-to-b from-transparent via-white/5 to-transparent" />
-        </div>
+        )}
       </DialogTrigger>
 
       <DialogContent className="bg-background/95 backdrop-blur-2xl border-white/10 rounded-[2rem] md:rounded-[2.5rem] w-[95vw] sm:max-w-2xl p-0 overflow-y-auto max-h-[90vh] shadow-[0_0_50px_rgba(0,0,0,0.5)] outline-none scrollbar-hide">
