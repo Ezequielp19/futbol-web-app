@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Plus, Loader2, Target, HandHelping, Calendar, Shield, Hand } from "lucide-react"
+import { Plus, Loader2, Target, HandHelping, Calendar, Shield, Hand, XCircle } from "lucide-react"
 import type { Player } from "@/lib/types"
 
 export function StatsManager() {
@@ -32,6 +32,7 @@ export function StatsManager() {
   const [assists, setAssists] = useState("0")
   const [cleanSheets, setCleanSheets] = useState("0")
   const [saves, setSaves] = useState("0")
+  const [missedGoals, setMissedGoals] = useState("0")
   const [formMonth, setFormMonth] = useState(selectedMonth)
 
   const resetForm = () => {
@@ -40,6 +41,7 @@ export function StatsManager() {
     setAssists("0")
     setCleanSheets("0")
     setSaves("0")
+    setMissedGoals("0")
     setFormMonth(selectedMonth)
   }
 
@@ -52,7 +54,8 @@ export function StatsManager() {
         parseInt(goals) || 0,
         parseInt(assists) || 0,
         parseInt(cleanSheets) || 0,
-        parseInt(saves) || 0
+        parseInt(saves) || 0,
+        parseInt(missedGoals) || 0
       )
       resetForm()
       setIsDialogOpen(false)
@@ -67,22 +70,12 @@ export function StatsManager() {
     setSelectedPlayerId(player.id)
     setFormMonth(selectedMonth)
 
-    // Find existing stat for this player and month
-    const existingStat = stats.find(
-      (s) => s.playerId === player.id && s.month === selectedMonth
-    )
-
-    if (existingStat) {
-      setGoals(existingStat.goals.toString())
-      setAssists(existingStat.assists.toString())
-      setCleanSheets((existingStat.cleanSheets || 0).toString())
-      setSaves((existingStat.saves || 0).toString())
-    } else {
-      setGoals("0")
-      setAssists("0")
-      setCleanSheets("0")
-      setSaves("0")
-    }
+    // Always start with 0 for new additions
+    setGoals("0")
+    setAssists("0")
+    setCleanSheets("0")
+    setSaves("0")
+    setMissedGoals("0")
 
     setIsDialogOpen(true)
   }
@@ -116,9 +109,15 @@ export function StatsManager() {
   const monthStats = stats.filter((s) => s.month === selectedMonth)
 
   // Create a map of player stats for the month
-  const playerStatsMap = new Map<string, { goals: number; assists: number }>()
+  const playerStatsMap = new Map<string, { goals: number; assists: number; cleanSheets: number; saves: number; missedGoals: number }>()
   monthStats.forEach((stat) => {
-    playerStatsMap.set(stat.playerId, { goals: stat.goals, assists: stat.assists })
+    playerStatsMap.set(stat.playerId, {
+      goals: stat.goals,
+      assists: stat.assists,
+      cleanSheets: stat.cleanSheets || 0,
+      saves: stat.saves || 0,
+      missedGoals: stat.missedGoals || 0
+    })
   })
 
   return (
@@ -144,7 +143,7 @@ export function StatsManager() {
               .toUpperCase()
               .slice(0, 2)
 
-            const playerStat = playerStatsMap.get(player.id) || { goals: 0, assists: 0, cleanSheets: 0, saves: 0 }
+            const playerStat = playerStatsMap.get(player.id) || { goals: 0, assists: 0, cleanSheets: 0, saves: 0, missedGoals: 0 }
             const isPortero = player.traits?.includes("portero")
 
             return (
@@ -185,6 +184,10 @@ export function StatsManager() {
                         <span className="text-white font-black text-xl leading-none italic">{playerStat.assists}</span>
                         <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">Asist.</span>
                       </div>
+                      <div className="flex flex-col items-center">
+                        <span className="text-red-500 font-black text-xl leading-none italic">{playerStat.missedGoals || 0}</span>
+                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">Errados</span>
+                      </div>
                     </>
                   )}
                 </div>
@@ -207,9 +210,9 @@ export function StatsManager() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="bg-secondary border-white/10 rounded-3xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Actualizar Marcador</DialogTitle>
+            <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Sumar Estadísticas</DialogTitle>
             <DialogDescription className="text-white/60">
-              Registra el desempeño del jugador en el periodo seleccionado
+              Ingresa los goles y asistencias de hoy. Se sumarán automáticamente al total.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-6 font-sans">
@@ -281,6 +284,19 @@ export function StatsManager() {
                       className="bg-white/5 border-white/10 h-14 text-2xl font-black italic focus:border-white text-center"
                     />
                   </div>
+                  <div className="col-span-2 space-y-3">
+                    <Label htmlFor="missedGoals" className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white/40">
+                      <XCircle className="h-4 w-4 text-red-500" /> Goles Errados
+                    </Label>
+                    <Input
+                      id="missedGoals"
+                      type="number"
+                      min="0"
+                      value={missedGoals}
+                      onChange={(e) => setMissedGoals(e.target.value)}
+                      className="bg-white/5 border-white/10 h-14 text-2xl font-black italic focus:border-red-500 text-center"
+                    />
+                  </div>
                 </>
               )}
             </div>
@@ -290,7 +306,7 @@ export function StatsManager() {
               Cancelar
             </Button>
             <Button onClick={handleSubmit} disabled={isSubmitting || !selectedPlayerId} className="bg-primary text-black hover:bg-white font-black italic uppercase tracking-tighter rounded-xl h-12 flex-1">
-              {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : "Guardar Registro"}
+              {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sumar al Total"}
             </Button>
           </DialogFooter>
         </DialogContent>

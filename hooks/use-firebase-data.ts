@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ref, onValue, push, set, remove, update } from "firebase/database"
+import { ref, onValue, push, set, remove, update, increment } from "firebase/database"
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage"
 import { database, storage } from "@/lib/firebase"
 import type { Player, Stat, PlayerWithStats } from "@/lib/types"
@@ -116,14 +116,14 @@ export function usePlayersWithStats() {
     const totalAssists = playerStats.reduce((sum, stat) => sum + (stat.assists || 0), 0)
     const totalCleanSheets = playerStats.reduce((sum, stat) => sum + (stat.cleanSheets || 0), 0)
     const totalSaves = playerStats.reduce((sum, stat) => sum + (stat.saves || 0), 0)
+    const totalMissedGoals = playerStats.reduce((sum, stat) => sum + (stat.missedGoals || 0), 0)
 
     // Points system:
-    // Players: Goal=2, Assist=1
-    // Goalies: Clean Sheet=5, Save=0.5 (represented as 1 point per 2 saves for simplicity, or just 1 per save)
-    // Let's use: Goal=2, Assist=1, Clean Sheet=5, Save=1 (Arqueros)
+    // Everyone: Goal=2, Assist=1, Missed Goal=1
+    // Goalies: Save=1 (Valla Invicta removed from points)
     const totalPoints = isPortero 
-      ? (totalCleanSheets * 5 + totalSaves * 1)
-      : (totalGoals * 2 + totalAssists * 1)
+      ? (totalSaves * 1)
+      : (totalGoals * 2 + totalAssists * 1 + totalMissedGoals * 1)
     
     return {
       ...player,
@@ -131,6 +131,7 @@ export function usePlayersWithStats() {
       totalAssists,
       totalCleanSheets,
       totalSaves,
+      totalMissedGoals,
       totalPoints,
       monthlyStats: {
         "global": {
@@ -138,6 +139,7 @@ export function usePlayersWithStats() {
           assists: totalAssists,
           cleanSheets: totalCleanSheets,
           saves: totalSaves,
+          missedGoals: totalMissedGoals,
           points: totalPoints
         }
       }
@@ -230,7 +232,8 @@ export async function addOrUpdateStat(
   goals: number, 
   assists: number,
   cleanSheets: number = 0,
-  saves: number = 0
+  saves: number = 0,
+  missedGoals: number = 0
 ): Promise<void> {
   const statsRef = ref(database, "stats")
   const globalMonth = "global"
@@ -251,7 +254,13 @@ export async function addOrUpdateStat(
       
       if (existingStatId) {
         const statRef = ref(database, `stats/${existingStatId}`)
-        await update(statRef, { goals, assists, cleanSheets, saves })
+        await update(statRef, { 
+          goals: increment(goals), 
+          assists: increment(assists), 
+          cleanSheets: increment(cleanSheets), 
+          saves: increment(saves),
+          missedGoals: increment(missedGoals)
+        })
       } else {
         const newStatRef = push(statsRef)
         await set(newStatRef, {
@@ -260,6 +269,7 @@ export async function addOrUpdateStat(
           assists,
           cleanSheets,
           saves,
+          missedGoals,
           month: globalMonth,
           createdAt: Date.now(),
         })

@@ -15,6 +15,7 @@ export interface Stat {
   assists: number
   cleanSheets: number
   saves: number
+  missedGoals: number
   month: string // Format: "YYYY-MM"
   createdAt: number
 }
@@ -24,6 +25,7 @@ export interface PlayerWithStats extends Player {
   totalAssists: number
   totalCleanSheets: number
   totalSaves: number
+  totalMissedGoals: number
   totalPoints: number
   monthlyStats: {
     [month: string]: {
@@ -31,6 +33,7 @@ export interface PlayerWithStats extends Player {
       assists: number
       cleanSheets: number
       saves: number
+      missedGoals: number
       points: number
     }
   }

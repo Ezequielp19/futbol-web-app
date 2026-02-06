@@ -8,7 +8,7 @@ import { PlayerCard } from "@/components/player-card"
 
 interface PodiumProps {
     players: PlayerWithStats[]
-    sortBy: "goals" | "assists" | "points"
+    sortBy: "goals" | "assists" | "points" | "missedGoals"
 }
 
 export function Podium({ players, sortBy }: PodiumProps) {
@@ -32,7 +32,7 @@ export function Podium({ players, sortBy }: PodiumProps) {
                 const isSecond = rank === 2
                 const isThird = rank === 3
 
-                const stats = player.monthlyStats["global"] || { goals: 0, assists: 0, points: 0, cleanSheets: 0, saves: 0 }
+                const stats = player.monthlyStats["global"] || { goals: 0, assists: 0, points: 0, cleanSheets: 0, saves: 0, missedGoals: 0 }
 
                 const initials = player.name
                     .split(" ")
@@ -41,8 +41,8 @@ export function Podium({ players, sortBy }: PodiumProps) {
                     .toUpperCase()
                     .slice(0, 2)
 
-                const statLabel = sortBy === "goals" ? "Goles" : sortBy === "assists" ? "Asist." : "Puntos"
-                const statValue = sortBy === "goals" ? stats.goals : sortBy === "assists" ? stats.assists : stats.points
+                const statLabel = sortBy === "goals" ? "Goles" : sortBy === "assists" ? "Asist." : sortBy === "missedGoals" ? "Errados" : "Puntos"
+                const statValue = sortBy === "goals" ? stats.goals : sortBy === "assists" ? stats.assists : sortBy === "missedGoals" ? stats.missedGoals : stats.points
 
                 return (
                     <PlayerCard

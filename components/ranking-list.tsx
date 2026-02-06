@@ -10,6 +10,8 @@ import { Loader2, TrendingUp } from "lucide-react"
 
 import { Podium } from "@/components/podium"
 
+type SortOption = "goals" | "assists" | "points" | "missedGoals"
+
 export function RankingList() {
   const { players, loading, error } = usePlayersWithStats()
   const selectedMonth = "global"
@@ -40,13 +42,14 @@ export function RankingList() {
     )
   }
 
-  const getSortedPlayers = (sortBy: "goals" | "assists" | "points") => {
+  const getSortedPlayers = (sortBy: SortOption) => {
     return [...players].sort((a, b) => {
-      const aStats = a.monthlyStats[selectedMonth] || { goals: 0, assists: 0, points: 0, cleanSheets: 0, saves: 0 }
-      const bStats = b.monthlyStats[selectedMonth] || { goals: 0, assists: 0, points: 0, cleanSheets: 0, saves: 0 }
+      const aStats = a.monthlyStats[selectedMonth] || { goals: 0, assists: 0, points: 0, cleanSheets: 0, saves: 0, missedGoals: 0 }
+      const bStats = b.monthlyStats[selectedMonth] || { goals: 0, assists: 0, points: 0, cleanSheets: 0, saves: 0, missedGoals: 0 }
 
       if (sortBy === "goals") return bStats.goals - aStats.goals
       if (sortBy === "assists") return bStats.assists - aStats.assists
+      if (sortBy === "missedGoals") return bStats.missedGoals - aStats.missedGoals
       return bStats.points - aStats.points
     })
   }
@@ -67,10 +70,11 @@ export function RankingList() {
       </div>
 
       <Tabs defaultValue="points" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-secondary/30 p-1.5 h-16 rounded-2xl border border-white/5 mb-8">
-          <TabsTrigger value="points" className="rounded-xl font-black italic uppercase tracking-tighter text-base data-[state=active]:bg-primary data-[state=active]:text-black transition-all">Puntos</TabsTrigger>
-          <TabsTrigger value="goals" className="rounded-xl font-black italic uppercase tracking-tighter text-base data-[state=active]:bg-primary data-[state=active]:text-black transition-all">Goles</TabsTrigger>
-          <TabsTrigger value="assists" className="rounded-xl font-black italic uppercase tracking-tighter text-base data-[state=active]:bg-primary data-[state=active]:text-black transition-all">Asistencias</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 bg-secondary/30 p-1.5 h-16 rounded-2xl border border-white/5 mb-8">
+          <TabsTrigger value="points" className="rounded-xl font-black italic uppercase tracking-tighter text-sm md:text-base data-[state=active]:bg-primary data-[state=active]:text-black transition-all">Puntos</TabsTrigger>
+          <TabsTrigger value="goals" className="rounded-xl font-black italic uppercase tracking-tighter text-sm md:text-base data-[state=active]:bg-primary data-[state=active]:text-black transition-all">Goles</TabsTrigger>
+          <TabsTrigger value="assists" className="rounded-xl font-black italic uppercase tracking-tighter text-sm md:text-base data-[state=active]:bg-primary data-[state=active]:text-black transition-all">Asistencias</TabsTrigger>
+          <TabsTrigger value="missedGoals" className="rounded-xl font-black italic uppercase tracking-tighter text-sm md:text-base data-[state=active]:bg-primary data-[state=active]:text-black transition-all">Errados</TabsTrigger>
         </TabsList>
 
         <div className="transition-all duration-500">
@@ -106,6 +110,20 @@ export function RankingList() {
             <Podium players={getSortedPlayers("assists")} sortBy="assists" />
             <div className="space-y-4">
               {getSortedPlayers("assists").slice(3).map((player, index) => (
+                <PlayerCard
+                  key={player.id}
+                  player={player}
+                  rank={index + 4}
+                  showMonth={selectedMonth}
+                />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="missedGoals" className="mt-0 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <Podium players={getSortedPlayers("missedGoals")} sortBy="missedGoals" />
+            <div className="space-y-4">
+              {getSortedPlayers("missedGoals").slice(3).map((player, index) => (
                 <PlayerCard
                   key={player.id}
                   player={player}

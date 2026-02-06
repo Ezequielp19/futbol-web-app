@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Trophy, Target, HandHelping, Info, Calendar, User, Shield, Hand } from "lucide-react"
+import { Trophy, Target, HandHelping, Info, Calendar, User, Shield, Hand, XCircle } from "lucide-react"
 import type { PlayerWithStats } from "@/lib/types"
 import { AVAILABLE_TRAITS } from "@/lib/constants"
 
@@ -31,6 +31,7 @@ export function PlayerCard({ player, rank, showMonth, customTrigger }: PlayerCar
       assists: player.totalAssists,
       cleanSheets: player.totalCleanSheets,
       saves: player.totalSaves,
+      missedGoals: player.totalMissedGoals,
       points: player.totalPoints
     }
 
@@ -145,6 +146,11 @@ export function PlayerCard({ player, rank, showMonth, customTrigger }: PlayerCar
                         <p className="text-2xl md:text-4xl font-black italic leading-none text-white">{stats.assists}</p>
                         <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter">Asist.</p>
                       </div>
+                      <div className="w-[1px] h-10 bg-white/5 hidden sm:block" />
+                      <div className="text-center hidden sm:block">
+                        <p className="text-2xl md:text-4xl font-black italic leading-none text-red-500">{stats.missedGoals || 0}</p>
+                        <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase mt-1 tracking-tighter">Errados</p>
+                      </div>
                     </>
                   )}
                 </div>
@@ -257,6 +263,11 @@ export function PlayerCard({ player, rank, showMonth, customTrigger }: PlayerCar
                           <div className="text-center">
                             <p className="text-3xl font-black italic text-white leading-none">{player.totalAssists}</p>
                             <p className="text-[10px] font-bold text-white/40 uppercase mt-1">Asist.</p>
+                          </div>
+                          <div className="w-[1px] h-full bg-white/10 mx-2" />
+                          <div className="text-center">
+                            <p className="text-3xl font-black italic text-red-500 leading-none">{player.totalMissedGoals || 0}</p>
+                            <p className="text-[10px] font-bold text-white/40 uppercase mt-1">Errados</p>
                           </div>
                         </>
                       )}
