@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { Trophy, Target, HandHelping, Info, Calendar, User, Shield, Hand, XCircle } from "lucide-react"
 import type { PlayerWithStats } from "@/lib/types"
 import { AVAILABLE_TRAITS } from "@/lib/constants"
+import { PlayerRadar } from "@/components/player-radar"
 
 interface PlayerCardProps {
   player: PlayerWithStats
@@ -212,6 +213,13 @@ export function PlayerCard({ player, rank, showMonth, customTrigger }: PlayerCar
                   <p className="text-lg text-white/80 font-medium italic leading-relaxed">
                     {player.description || "Este jugador prefiere que su fútbol hable por él. No hay descripción disponible todavía."}
                   </p>
+                </div>
+
+                <div className="bg-white/5 rounded-3xl p-6 border border-white/5">
+                  <h4 className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-primary mb-4">
+                    <Target className="h-4 w-4" /> Radar de Habilidades
+                  </h4>
+                  <PlayerRadar player={player} />
                 </div>
 
                 <div className="bg-white/5 rounded-3xl p-6 border border-white/5">

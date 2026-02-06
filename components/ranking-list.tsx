@@ -2,12 +2,9 @@
 
 import { useState } from "react"
 import { usePlayersWithStats } from "@/hooks/use-firebase-data"
-import { getAvailableMonths, formatMonth } from "@/hooks/use-firebase-data"
 import { PlayerCard } from "@/components/player-card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2, TrendingUp } from "lucide-react"
-
 import { Podium } from "@/components/podium"
 
 type SortOption = "goals" | "assists" | "points" | "missedGoals"
@@ -66,7 +63,6 @@ export function RankingList() {
             <p className="text-sm text-muted-foreground font-medium uppercase tracking-widest opacity-60">Clasificación de rendimiento</p>
           </div>
         </div>
-
       </div>
 
       <Tabs defaultValue="points" className="w-full">
@@ -138,4 +134,3 @@ export function RankingList() {
     </div>
   )
 }
-
